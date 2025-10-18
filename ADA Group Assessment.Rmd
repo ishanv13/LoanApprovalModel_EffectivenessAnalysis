@@ -1,0 +1,129 @@
+---
+title: "ADA Group Assignment"
+output: html_document
+date: "2025-02-06"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+
+library(tidyverse)
+library(dplyr)
+library(effectsize)
+library(ggplot2)
+library(pwr)
+
+```
+
+```{r}
+
+expdata <- read_csv("ADAproject_-5_data.csv")
+
+
+# View the type of data of the different columns
+str(expdata)
+
+## Set categorical variable
+expdata$Variant <- factor(expdata$Variant)
+
+
+# Check for missing values in the data 
+(missing_values_exp <- expdata %>%
+  summarise(across(everything(), ~ sum(is.na(.)))))
+# There is no missing value in the data
+
+#Eliminate all rows that have a 0 value in the fully_complt column
+
+expdata <- expdata %>%
+  filter(fully_complt > 0)
+
+summary(expdata)
+
+```
+________________________________________________________________________________________________________________________________
+
+```{r}
+officer_conf <- expdata %>%
+  group_by(Variant, loanofficer_id) %>%
+  summarise(
+    conf_diff = sum(confidence_init_total - confidence_fin_total, na.rm = TRUE),
+    fully_complt_sum = sum(fully_complt, na.rm = TRUE)
+  ) %>%
+  mutate(conf_fin_norm = conf_diff / fully_complt_sum) %>%
+  filter(!is.na(conf_fin_norm))
+```
+```{r}
+t.test(conf_fin_norm ~ Variant, 
+       data = officer_conf, 
+       var.equal = FALSE)
+```
+________________________________________________________________________________________________________________________________
+
+```{r}
+officer_agree <- expdata %>%
+  group_by(Variant, loanofficer_id) %>%
+  summarise(
+    agree_diff = sum(agree_fin - agree_init, na.rm = TRUE),
+    fully_complt_sum = sum(fully_complt, na.rm = TRUE)
+  ) %>%
+  mutate(agree_fin_norm = agree_diff / fully_complt_sum) %>%
+  filter(!is.na(agree_fin_norm))
+```
+```{r}
+t.test(agree_fin_norm ~ Variant, 
+       data = officer_agree, 
+       var.equal = FALSE)
+```
+________________________________________________________________________________________________________________________________
+
+```{r}
+officer_agree <- expdata %>%
+  group_by(Variant, loanofficer_id) %>%
+  summarise(
+    conflict_diff = sum(conflict_init - conflict_fin, na.rm = TRUE),
+    fully_complt_sum = sum(fully_complt, na.rm = TRUE)
+  ) %>%
+  mutate(conflict_fin_norm = conflict_diff / fully_complt_sum) %>%
+  filter(!is.na(conflict_fin_norm))
+```
+```{r}
+t.test(conflict_fin_norm ~ Variant, 
+       data = officer_agree, 
+       var.equal = FALSE)
+```
+________________________________________________________________________________________________________________________________
+
+```{r}
+officer_agree_net <- expdata %>%
+  group_by(Variant, loanofficer_id) %>%
+  summarise(
+    agree_net_fin = sum(agree_fin - conflict_fin, na.rm = TRUE),
+    fully_complt_sum = sum(fully_complt, na.rm = TRUE)
+  ) %>%
+  mutate(agree_net_norm_fin = agree_net_fin / fully_complt_sum) %>%
+  filter(!is.na(agree_net_norm_fin))
+  
+```
+```{r}
+t.test(agree_net_norm_fin ~ Variant, data= officer_agree_net, var.equal=FALSE)
+```
+________________________________________________________________________________________________________________________________
+
+```{r}
+officer_agree_net <- expdata %>%
+  group_by(Variant, loanofficer_id) %>%
+  summarise(
+    agree_net_init = sum(agree_init - conflict_init, na.rm = TRUE),
+    fully_complt_sum = sum(fully_complt, na.rm = TRUE)
+  ) %>%
+  mutate(agree_net_norm_init = agree_net_init / fully_complt_sum) %>%
+  filter(!is.na(agree_net_norm_init))
+  
+```
+```{r}
+t.test(agree_net_norm_init ~ Variant, data= officer_agree_net, var.equal=FALSE)
+```
+________________________________________________________________________________________________________________________________
+
