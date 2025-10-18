@@ -1,5 +1,5 @@
 ---
-title: "ADA Group Assignment"
+title: "Code"
 output: html_document
 date: "2025-02-06"
 ---
@@ -19,7 +19,7 @@ library(pwr)
 
 ```{r}
 
-expdata <- read_csv("ADAproject_-5_data.csv")
+expdata <- read_csv("Loan Data.csv")
 
 
 # View the type of data of the different columns
@@ -126,4 +126,5 @@ officer_agree_net <- expdata %>%
 t.test(agree_net_norm_init ~ Variant, data= officer_agree_net, var.equal=FALSE)
 ```
 ________________________________________________________________________________________________________________________________
+
 
